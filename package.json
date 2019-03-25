@@ -1,0 +1,27 @@
+{
+  "name": "web-drag",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "drag",
+    "scroll",
+    "dragscroll",
+    "dragmove",
+    "drag-scroll",
+    "drag-move"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grajs/web-drag.git"
+  },
+  "author": "liujianhua",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/grajs/web-drag/issues"
+  },
+  "homepage": "https://github.com/grajs/web-drag#readme"
+}
