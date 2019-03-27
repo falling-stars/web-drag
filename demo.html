@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    .scroll-container {
+      overflow: auto;
+      width: 500px;
+      height: 500px;
+      border: solid 1px green;
+    }
+
+    .scroll-container div {
+      width: 700px;
+      height: 500px;
+      display: inline-block;
+      border: solid 1px red;
+      background-color: #ccc;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="scroll-container">
+  <div>1</div>
+  <div>2</div>
+  <div>3</div>
+  <div>4</div>
+  <div>5</div>
+  <div>6</div>
+  <div>7</div>
+  <div>8</div>
+  <div>9</div>
+</div>
+<script>
+  class DragScroll {
+    constructor(el) {
+      this.el = el
+      this.bindEvents()
+    }
+
+    bindEvents() {
+      this.el.addEventListener('mousedown', e => {
+        if (e.buttons === 1 && e.button === 0) {
+          this.allowMove = true
+        }
+      })
+      this.el.addEventListener('mouseup', () => {
+        this.allowMove = false
+      })
+      this.el.addEventListener('mouseleave', () => {
+        this.allowMove = false
+      })
+      this.el.addEventListener('mousemove', e => {
+        if (this.allowMove) {
+          this.el.scrollLeft = this.el.scrollLeft - e.movementX
+          this.el.scrollTop = this.el.scrollTop - e.movementY
+        }
+      })
+    }
+  }
+
+  new DragScroll(document.querySelector('.scroll-container'))
+  window.addEventListener('mouseup', () => {
+    console.log(44)
+  })
+</script>
+</body>
+</html>
