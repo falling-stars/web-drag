@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
   <style>
     .scroll-container {
+      user-select: none;
       overflow: auto;
       width: 500px;
       height: 500px;
@@ -21,50 +23,75 @@
     }
   </style>
 </head>
+
 <body>
-<div class="scroll-container">
-  <div>1</div>
-  <div>2</div>
-  <div>3</div>
-  <div>4</div>
-  <div>5</div>
-  <div>6</div>
-  <div>7</div>
-  <div>8</div>
-  <div>9</div>
-</div>
-<script>
-  class DragScroll {
-    constructor(el) {
-      this.el = el
-      this.bindEvents()
+  <div class="scroll-container">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <div>5</div>
+    <div>6</div>
+    <div>7</div>
+    <div>8</div>
+    <div>9</div>
+  </div>
+  <script>
+    class DragScroll {
+      constructor(option) {
+        this.initData(option)
+        option.mode === 'scroll' && this.setScrollMode()
+      }
+
+      initData(option) {
+        this.el = option.el
+        // set scroll speed
+        this.speedX = this.speedY = option.speed || 1
+        if(option.x && typeof option.x.speed === 'number'){
+          this.speedX = option.x.speed
+        }
+        if(option.y && typeof option.y.speed === 'number'){
+          this.speedY = option.y.speed
+        }
+      }
+
+      setScrollMode() {
+        this.el.addEventListener('mousedown', e => {
+          if (e.buttons === 1 && e.button === 0) {
+            this.el.querySelectorAll('div').forEach(element => {
+              element.style.cursor = 'grabbing'
+            })
+            this.allowMove = true
+          }
+          e.preventDefault()
+        })
+        this.el.addEventListener('mouseup', () => {
+          this.allowMove = false
+        })
+        this.el.addEventListener('mouseleave', () => {
+          this.allowMove = false
+        })
+        this.el.addEventListener('mousemove', e => {
+          if (this.allowMove) {
+            this.el.scrollLeft = this.el.scrollLeft - e.movementX * this.speedX
+            this.el.scrollTop = this.el.scrollTop - e.movementY * this.speedY
+          }
+        })
+      }
     }
 
-    bindEvents() {
-      this.el.addEventListener('mousedown', e => {
-        if (e.buttons === 1 && e.button === 0) {
-          this.allowMove = true
-        }
-      })
-      this.el.addEventListener('mouseup', () => {
-        this.allowMove = false
-      })
-      this.el.addEventListener('mouseleave', () => {
-        this.allowMove = false
-      })
-      this.el.addEventListener('mousemove', e => {
-        if (this.allowMove) {
-          this.el.scrollLeft = this.el.scrollLeft - e.movementX
-          this.el.scrollTop = this.el.scrollTop - e.movementY
-        }
-      })
-    }
-  }
-
-  new DragScroll(document.querySelector('.scroll-container'))
-  window.addEventListener('mouseup', () => {
-    console.log(44)
-  })
-</script>
+    new DragScroll({
+      el: document.querySelector('.scroll-container'),
+      mode: 'scroll',
+      speed: 1,
+      x: {
+        speed: 1
+      },
+      y: {
+        speed: 2
+      }
+    })
+  </script>
 </body>
+
 </html>
