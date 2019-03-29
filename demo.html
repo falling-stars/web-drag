@@ -13,7 +13,7 @@
       border: solid 1px green;
     }
 
-    .scroll-container div {
+    .scroll-container div:not(.container) {
       width: 700px;
       height: 500px;
       display: inline-block;
@@ -21,42 +21,69 @@
       background-color: #ccc;
       text-align: center;
     }
+
+    .container {
+      transform: translate(5px, 10px)
+    }
   </style>
 </head>
 
 <body>
   <div class="scroll-container">
-    <div>1</div>
-    <div>2</div>
-    <div>3</div>
-    <div>4</div>
-    <div>5</div>
-    <div>6</div>
-    <div>7</div>
-    <div>8</div>
-    <div>9</div>
+    <div class="container">
+      <div>1</div>
+      <div>2</div>
+      <div>3</div>
+      <div>4</div>
+      <div>5</div>
+      <div>6</div>
+      <div>7</div>
+      <div>8</div>
+      <div>9</div>
+    </div>
   </div>
+  <div style="height:1000px;width:2500px"></div>
   <script>
     class DragScroll {
       constructor(option) {
-        this.initData(option)
-        option.mode === 'scroll' && this.setScrollMode()
+        this.el = option.el
+        this.mode = option.mode
+        if (option.mode === 'scroll' || option.mode === 'translate') {
+          this.initMoveData(option)
+          this.moveMode()
+        }
       }
 
-      initData(option) {
-        this.el = option.el
+      initMoveData(option) {
         // set scroll speed
         this.speedX = this.speedY = option.speed || 1
-        if(option.x && typeof option.x.speed === 'number'){
+        if (option.x && typeof option.x.speed === 'number') {
           this.speedX = option.x.speed
         }
-        if(option.y && typeof option.y.speed === 'number'){
+        if (option.y && typeof option.y.speed === 'number') {
           this.speedY = option.y.speed
         }
         this.draggingClassName = option.draggingClassName || 'dragging'
+        if (option.mode === 'translate') {
+          // get init transfrom 'x' and 'y'
+          const childElement = Array.prototype.filter.call(option.el.childNodes, element => element.nodeType === 1)
+          if (childElement.length === 1) {
+            this.translateElement = childElement[0]
+            this.translateX = 0
+            this.translateY = 0
+            const transformValue = window.getComputedStyle(childElement[0]).transform
+            if (/matrix/.test(transformValue)) {
+              const matchData = transformValue.match(/(\d{1,2}), (\d{1,2})\)$/)
+              this.translateX = +matchData[1]
+              this.translateY = +matchData[2]
+            }
+          } else {
+            throw "translate-mode and 'option.el' can only have one root element"
+          }
+        }
       }
 
-      setScrollMode() {
+      moveMode() {
         const targetElement = this.el
         targetElement.addEventListener('mousedown', e => {
           if (e.buttons === 1 && e.button === 0) {
@@ -76,11 +103,18 @@
         })
         targetElement.addEventListener('mousemove', e => {
           if (this.allowMove) {
-            if(!targetElement.classList.contains(this.draggingClassName)){
+            if (!targetElement.classList.contains(this.draggingClassName)) {
               targetElement.classList.add(this.draggingClassName)
             }
-            targetElement.scrollLeft = targetElement.scrollLeft - e.movementX * this.speedX
-            targetElement.scrollTop = targetElement.scrollTop - e.movementY * this.speedY
+            if (this.mode === 'scroll') {
+              targetElement.scrollLeft = targetElement.scrollLeft - e.movementX * this.speedX
+              targetElement.scrollTop = targetElement.scrollTop - e.movementY * this.speedY
+            }
+            if (this.mode === 'translate') {
+              this.translateX = this.translateX + e.movementX * this.speedX
+              this.translateY = this.translateY + e.movementY * this.speedY
+              this.translateElement.style.transform = `translate(${this.translateX}px, ${this.translateY}px)`
+            }
             e.preventDefault()
           }
         })
@@ -89,7 +123,7 @@
 
     new DragScroll({
       el: document.querySelector('.scroll-container'),
-      mode: 'scroll',
+      mode: 'translate',
       speed: 1,
       x: {
         speed: 1
