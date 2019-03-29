@@ -53,28 +53,35 @@
         if(option.y && typeof option.y.speed === 'number'){
           this.speedY = option.y.speed
         }
+        this.draggingClassName = option.draggingClassName || 'dragging'
       }
 
       setScrollMode() {
-        this.el.addEventListener('mousedown', e => {
+        const targetElement = this.el
+        targetElement.addEventListener('mousedown', e => {
           if (e.buttons === 1 && e.button === 0) {
-            this.el.querySelectorAll('div').forEach(element => {
-              element.style.cursor = 'grabbing'
-            })
             this.allowMove = true
+            e.preventDefault()
           }
+        })
+        targetElement.addEventListener('mouseup', e => {
+          this.allowMove = false
+          targetElement.classList.remove(this.draggingClassName)
           e.preventDefault()
         })
-        this.el.addEventListener('mouseup', () => {
+        targetElement.addEventListener('mouseleave', e => {
           this.allowMove = false
+          targetElement.classList.remove(this.draggingClassName)
+          e.preventDefault()
         })
-        this.el.addEventListener('mouseleave', () => {
-          this.allowMove = false
-        })
-        this.el.addEventListener('mousemove', e => {
+        targetElement.addEventListener('mousemove', e => {
           if (this.allowMove) {
-            this.el.scrollLeft = this.el.scrollLeft - e.movementX * this.speedX
-            this.el.scrollTop = this.el.scrollTop - e.movementY * this.speedY
+            if(!targetElement.classList.contains(this.draggingClassName)){
+              targetElement.classList.add(this.draggingClassName)
+            }
+            targetElement.scrollLeft = targetElement.scrollLeft - e.movementX * this.speedX
+            targetElement.scrollTop = targetElement.scrollTop - e.movementY * this.speedY
+            e.preventDefault()
           }
         })
       }
@@ -89,7 +96,8 @@
       },
       y: {
         speed: 2
-      }
+      },
+      draggingClassName: 'dsa'
     })
   </script>
 </body>
