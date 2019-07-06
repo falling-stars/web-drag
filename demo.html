@@ -7,7 +7,7 @@
   <style>
     .scroll-container {
       user-select: none;
-      overflow: auto;
+      overflow: hidden;
       width: 500px;
       height: 500px;
       border: solid 1px green;
@@ -20,10 +20,6 @@
       border: solid 1px red;
       background-color: #ccc;
       text-align: center;
-    }
-
-    .container {
-      transform: translate(5px, 10px)
     }
   </style>
 </head>
@@ -46,15 +42,20 @@
   <script>
     class DragScroll {
       constructor(option) {
-        this.el = option.el
-        this.mode = option.mode
-        if (option.mode === 'scroll' || option.mode === 'translate') {
-          this.initMoveData(option)
-          this.moveMode()
-        }
+        const next = this.initOptions(option)
+        if (!next) return false
+        this.initMoveData(option)
+        this.initEvent()
       }
 
-      initMoveData(option) {
+      initOptions(option) {
+        if (!document.body.contains(option.el)) {
+          throw "'option.el' must exist in document.body"
+          return false
+        }
+        this.el = option.el
+        this.mode = option.mode || 'scroll'
+        this.draggingClassName = option.draggingClassName || 'dragging'
         // set scroll speed
         this.speedX = this.speedY = option.speed || 1
         if (option.x && typeof option.x.speed === 'number') {
@@ -63,10 +64,13 @@
         if (option.y && typeof option.y.speed === 'number') {
           this.speedY = option.y.speed
         }
-        this.draggingClassName = option.draggingClassName || 'dragging'
+        return true
+      }
+
+      initMoveData(option) {
         if (option.mode === 'translate') {
-          // get init transfrom 'x' and 'y'
           const childElement = Array.prototype.filter.call(option.el.childNodes, element => element.nodeType === 1)
+          // Detection has only one root element
           if (childElement.length === 1) {
             this.translateElement = childElement[0]
             this.translateX = 0
@@ -83,7 +87,7 @@
         }
       }
 
-      moveMode() {
+      initEvent() {
         const targetElement = this.el
         targetElement.addEventListener('mousedown', e => {
           if (e.buttons === 1 && e.button === 0) {
@@ -131,7 +135,7 @@
       y: {
         speed: 2
       },
-      draggingClassName: 'dsa'
+      draggingClassName: 'dragging'
     })
   </script>
 </body>
